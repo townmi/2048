@@ -1,1 +1,352 @@
-html:5  
+<!doctype html> 
+<html> 
+<head> 
+<meta charset="utf-8"> 
+<title>demo</title>
+<style type="text/css">
+	#box{width: 492px; height: 492px; background: #B8AF9E; border-radius: 15px; margin: 10px auto 0; overflow: hidden; padding: 8px 0 0 8px; position: relative;}
+	table{text-align: center;}
+	td{width: 105px; height: 105px; background: #CCC0B2; border: 7px solid #B8AF9E; padding: 0; margin: 0; font-size: 38px; font-weight: bold; font-family: "微软雅黑"; border-radius: 20px;}
+	td.active_2{color: #7C736A; background: #EEE4DA}
+	td.active_4{color: #7C736A; background: #ECE0C8}
+	td.active_8{color: #FFFFFF; background: #FFD39B}
+	td.active_16{color: #FFFFFF; background: #FF8247}
+	td.active_32{color: #FFFFFF; background: #FF6347}
+	td.active_64{color: #FFFFFF; background: #FF0000}
+	td.active_128{color: #FFFFFF; background: #FFFFA2}
+	td.active_256{color: #FFFFFF; background: #FFD700}
+	td.active_more{color: #FFFFFF; background: #EEEE00}
+	p{font-size: 38px; font-weight: bold; font-family: "微软雅黑";line-height: 500px; text-align: center; width: 100%;
+	padding: 0; margin: 0; color: #FF4500; position: absolute; top: 0;}
+	#score{ width: 500px; height: 80px; margin: 50px auto 0; background: #B8AF9E;  border-radius: 15px;color: #FF4500;
+	font-size: 38px; font-weight: bold; font-family: "微软雅黑";line-height: 80px; text-align: center;}
+</style>
+<script type="text/javascript">
+	window.onload = function(){
+		var oScore = document.getElementById('score');
+		var oBox = document.getElementById('box');
+		var oTab = document.getElementsByTagName('table')[0];
+		var aTd = document.getElementsByTagName('td');
+		var num = 0, score = 0;
+		var arrLeRi = [
+			[0,0,0,0],
+			[0,2,0,0],
+			[0,0,2,0],
+			[0,0,0,0]
+		];
+		var arrUpDo = [];
+		function extendLtoU(d,s){
+			var n = 0;
+	        for(var i = s.length-1; i >=0 ; i--){
+	        	d[n] = [];
+               	for(var j = 0; j < s[i].length ; j++){
+               		d[n][j] = s[j][i];
+               	}
+               	n++;
+	        }
+	    }
+	    function extendUtoL(d,s){
+	        for(var i = 0; i < s.length ; i++){
+	        	d[i] = [];
+	        	var n = 0;
+               	for(var j = s[i].length-1; j >=0; j--){
+               		d[i][n] = s[j][i];
+               		n++;
+               	} 	
+	        }
+	    }
+	    extendLtoU(arrUpDo,arrLeRi);
+		setNumLeRi(arrLeRi);
+		getColor();
+		document.onkeydown = function(ev){
+			var ev = ev || event;
+			switch(ev.keyCode){
+				case 37: //left
+					toLeft();
+				break;
+				case 38: //up
+					toUp();
+				break;
+				case 39: //right
+					toRight();
+				break;
+				case 40: //down
+					toDown();
+				break;
+			}
+		}
+		function setNumLeRi(arr){
+			for(var i = 0; i < arr.length; i++){
+				for(var j = 0; j < arr[i].length; j++){
+					if(!arr[i][j]){
+						oTab.rows[i].cells[j].innerHTML = '';
+					}else{
+						oTab.rows[i].cells[j].innerHTML = arr[i][j];
+					}
+				}
+			}
+		}
+		function setNumUpDo(arr){
+			var n = 0
+			for(var i = arr.length-1; i >= 0; i--){
+				for(var j = 0; j < arr[i].length; j++){
+					if(!arr[n][j]){
+						oTab.rows[j].cells[i].innerHTML = '';
+					}else{
+						oTab.rows[j].cells[i].innerHTML = arr[n][j];
+					}
+				}
+				n++;
+			}
+		}
+		function getColor(){
+			for(var i = 0; i < aTd.length; i++){
+				if(!aTd[i].innerHTML){
+					aTd[i].className = '';
+				}else if(aTd[i].innerHTML >= 512){
+					aTd[i].className = 'active_more';
+				}else{
+					aTd[i].className = 'active_'+parseInt(aTd[i].innerHTML);
+				}
+			}
+		}
+		function removeNullLU(arr){
+			for(var i = 0; i < arr.length; i++){
+				for(var j = 0; j < arr[i].length; j++){
+					if(!arr[i][j]){
+						arr[i].splice(j,1);
+						j--;
+					}
+				}
+				arr[i].length = 4;
+			}	
+		}
+		function compareLU(arr){
+			for(var i = 0; i < arr.length; i++){
+				for(var j = 0; j < arr[i].length-1; j++){
+					if(!arr[i][j])continue;
+					if(arr[i][j] === arr[i][j+1]){
+						arr[i][j] *=2;
+						score += arr[i][j];
+						arr[i].splice(j+1,1) 
+					}
+				}
+				arr[i].length = 4;
+			}	
+		}
+		function removeNullRD(arr){
+			for(var i = 0; i < arr.length; i++){
+				for(var j = 0; j < arr[i].length; j++){
+					if(!arr[i][j]){
+						arr[i].splice(j,1);
+						arr[i].unshift(0);
+					}
+				}
+			}
+		}
+		function compareRD(arr){
+			for(var i = 0; i < arr.length; i++){
+				for(var j = arr[i].length-1; j >0 ; j--){
+					if(!arr[i][j])continue;
+					if(arr[i][j] === arr[i][j-1]){
+						arr[i][j] *=2;
+						score += arr[i][j];
+						arr[i].splice(j-1,1)
+						arr[i].unshift(0);
+					}
+				}
+			}	
+		}
+		function extend(d,s){
+	        for(var i = 0; i < s.length; i++){
+	        	d[i] = [];
+                for(var p in s[i]){
+                	d[i][p] = s[i][p];
+                } 
+	        }
+	    }
+		function Random(arr){
+			var arrstore = [];
+			for(var  i = 0; i < arr.length; i++){
+				for( var j = 0; j <arr[i].length; j++){
+					if(!arr[i][j]){
+						arrstore.push({i:i,j:j})
+					}
+				}
+			}
+			if(arrstore.length > 0){
+				var len = Math.floor(Math.random()*(arrstore.length-1));
+				var n = Math.floor(Math.random()*2);
+				arr[arrstore[len].i][arrstore[len].j] = !n ? 4: 2;
+			}else{
+				return true;	
+			}
+		}
+		function removeNull(arr){
+			for(var i = 0; i < arr.length; i++){
+				for(var j = 0; j < arr[i].length; j++){
+					if(!arr[i][j]){
+						arr[i][j] = 0;
+					}
+				}
+			}
+		}
+		function isDoNothing(arr1,arr2){
+			for(var i = 0; i < arr1.length; i++){
+				for(var j = 0; j < arr1[i].length; j++){
+					if(arr1[i][j] !== arr2[i][j]){
+						return false;
+					}
+				}
+			}
+			return true;
+		}
+		function isGameOver(arr){
+			var arrGameOver = [];
+			extend(arrGameOver,arr);
+			for(var i = 0; i < arrGameOver.length; i++){
+				for(var j = 0; j < arrGameOver[i].length; j++){
+					if(!arrGameOver[i][j]){
+						return false;
+					}
+				}
+			}
+			return true;	
+		}
+		function isRealyGameOver(arr){
+			var arrGameOver = [];
+			extend(arrGameOver,arr);
+			for(var i = 0; i < arrGameOver.length; i++){
+				for(var j = 0; j < arrGameOver[i].length-1; j++){
+					if(arrGameOver[i][j] == arrGameOver[i][j+1]){
+						return false;
+					}
+				}
+			}
+			return true;	
+		}
+		function gameOver(){
+			var oP = document.createElement('p');
+			oP.innerHTML = 'Game Over'
+			//oBox.innerHTML = '';
+			oBox.appendChild(oP);
+		}
+		function toLeft(){
+			var oldArr = [];
+			extend(oldArr, arrLeRi);
+			removeNullLU(arrLeRi);
+			compareLU(arrLeRi);
+			removeNull(arrLeRi);
+			if(isDoNothing(oldArr,arrLeRi)){
+				var arrTocom = [];
+				extendLtoU(arrTocom,arrLeRi);
+				if(isGameOver(arrLeRi) && isRealyGameOver(arrTocom)){
+					setTimeout(gameOver,1500);
+				}
+				return;
+			}else{
+				Random(arrLeRi);
+				extendLtoU(arrUpDo,arrLeRi);
+				setNumLeRi(arrLeRi);
+				getColor();
+			}
+			oScore.innerHTML = score;			
+		}
+		function toUp(){
+			var oldArr = [];
+			extend(oldArr, arrUpDo);
+			removeNullLU(arrUpDo);
+			compareLU(arrUpDo);
+			removeNull(arrUpDo);
+			if(isDoNothing(oldArr,arrUpDo)){
+				var arrTocom = [];
+				extendUtoL(arrTocom,arrUpDo);
+				if(isGameOver(arrUpDo) && isRealyGameOver(arrTocom)){
+					setTimeout(gameOver,1500);
+				}
+				return;
+			}else{
+				Random(arrUpDo);
+				extendUtoL(arrLeRi,arrUpDo);
+				setNumUpDo(arrUpDo);
+				getColor();
+			}
+			oScore.innerHTML = score;
+		}
+		function toRight(){
+			var oldArr = [];
+			extend(oldArr, arrLeRi);
+			removeNullRD(arrLeRi);
+			compareRD(arrLeRi);
+			removeNull(arrLeRi);
+			if(isDoNothing(oldArr,arrLeRi)){
+				var arrTocom = [];
+				extendLtoU(arrTocom,arrLeRi);
+				if(isGameOver(arrLeRi) && isRealyGameOver(arrTocom)){
+					setTimeout(gameOver,1500);
+				}
+				return 
+			}else{
+				Random(arrLeRi);
+				extendLtoU(arrUpDo,arrLeRi);
+				setNumLeRi(arrLeRi);
+				getColor();
+			}
+			oScore.innerHTML = score;
+		}
+		function toDown(){
+			var oldArr = [];
+			extend(oldArr, arrUpDo);
+			removeNullRD(arrUpDo);
+			compareRD(arrUpDo);
+			removeNull(arrUpDo);
+			if(isDoNothing(oldArr,arrUpDo)){
+				var arrTocom = [];
+				extendUtoL(arrTocom,arrUpDo);
+				if(isGameOver(arrUpDo) && isRealyGameOver(arrTocom)){
+					setTimeout(gameOver,1500);
+				}
+				return
+			}else{
+				Random(arrUpDo);
+				extendUtoL(arrLeRi,arrUpDo);
+				setNumUpDo(arrUpDo);
+				getColor();
+			}
+			oScore.innerHTML = score;
+		}
+	}
+</script>
+</head>
+<body>
+<div id="score"></div>
+<div id="box">
+	<table>
+		<tr>
+			<td></td>
+			<td></td>
+			<td></td>
+			<td>16</td>
+		</tr>
+		<tr>
+			<td></td>
+			<td></td>
+			<td></td>
+			<td>2</td>
+		</tr>
+		<tr>
+			<td></td>
+			<td></td>
+			<td></td>
+			<td>2</td>
+		</tr>
+		<tr>
+			<td></td>
+			<td></td>
+			<td></td>
+			<td>2</td>
+		</tr>
+	</table>
+</div>
+</body>
+</html>
